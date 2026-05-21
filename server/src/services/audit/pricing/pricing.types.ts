@@ -1,22 +1,44 @@
 import { ToolName, UseCase } from "../../../types/audit.types";
 
-export type PricingType =
-  | "seat_based"
-  | "usage_based"
-  | "enterprise";
+export interface ITokenPricing {
+  inputPerMillion: number;
+  outputPerMillion: number;
+  cacheWritePerMillion?: number;
+  cacheReadPerMillion?: number;
+}
+
+export interface IUsagePricing {
+  tokens?: Record<string, ITokenPricing>;
+  addOns?: Record<string, { price: number; unit: string }>;
+  customNotes?: string;
+}
 
 export interface IToolPlan {
   name: string;
 
-  monthlyPrice: number;
+  monthlyPrice: number | null;
 
-  pricingType: PricingType;
+  pricingType:
+    | "seat_flat"
+    | "seat_plus_usage"
+    | "pure_usage"
+    | "hybrid";
 
-  recommendedMinTeamSize?: number;
+  isProductionReady: boolean;
 
-  recommendedMaxTeamSize?: number;
+  recommendedMinTeamSize: number;
 
-  enterpriseOnly?: boolean;
+  recommendedMaxTeamSize: number;
+
+  enterpriseOnly: boolean;
+
+  includedCredits?: number;
+
+  isAnnualOnly?: boolean;
+
+  notes: string;
+
+  usagePricing?: IUsagePricing;
 }
 
 export interface IAlternativeTool {
@@ -25,18 +47,24 @@ export interface IAlternativeTool {
   reason: string;
 }
 
+export interface IRecommendationMetadata {
+  canDowngradeTo?: string;
+  canUpgradeTo?: string;
+  alternativeTools: string[];
+  teamSizeTriggers: {
+    min: number;
+    max: number;
+    action: "downgrade" | "upgrade" | "consolidate" | "switch_to_enterprise";
+  }[];
+  featureFlagsRequired?: string[];
+}
+
 export interface IToolPricingData {
   toolName: ToolName;
-
-  category: string;
-
-  supportedUseCases: UseCase[];
-
+  category: "ai_assistant" | "ai_code_editor" | "ai_api";
+  supportedUseCases: string[];
   pricingPageUrl: string;
-
   verifiedAt: string;
-
   plans: IToolPlan[];
-
-  alternatives: IAlternativeTool[];
+  recommendationMetadata: IRecommendationMetadata;
 }

@@ -1,12 +1,9 @@
-// Audit routes
-import { Router } from 'express';
-import { getAudit, createAudit, updateAudit, deleteAudit } from '../controllers/auditController';
+import express from "express";
 
-const router = Router();
+import { runAuditController } from "../controllers/auditController";
 
-router.get('/', getAudit);
-router.post('/', createAudit);
-router.put('/:id', updateAudit);
-router.delete('/:id', deleteAudit);
+const router = express.Router();
+
+router.post("/run", runAuditController);
 
 export default router;

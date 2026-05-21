@@ -1,16 +1,65 @@
-// Audit engine - main audit logic
-export class AuditEngine {
-  async runAudit(data: any) {
-    // Implementation here
-  }
+import {
+  IRecommendation,
+  IToolInput,
+  UseCase,
+} from "../../types/audit.types";
 
-  async analyzeSpending(data: any) {
-    // Implementation here
-  }
+import { generateRecommendation } from "./recommendationEngine";
 
-  async generateRecommendations(data: any) {
-    // Implementation here
-  }
+export interface IAuditInput {
+  teamSize: number;
+
+  primaryUseCase: UseCase;
+
+  tools: IToolInput[];
 }
 
-export default new AuditEngine();
+export interface IAuditResult {
+  recommendations: IRecommendation[];
+
+  totalMonthlySpend: number;
+
+  totalMonthlySavings: number;
+
+  totalAnnualSavings: number;
+}
+
+export const runAudit = (
+  input: IAuditInput
+): IAuditResult => {
+  const recommendations: IRecommendation[] = [];
+
+  let totalMonthlySpend = 0;
+
+  let totalMonthlySavings = 0;
+
+  let totalAnnualSavings = 0;
+
+  for (const tool of input.tools) {
+    totalMonthlySpend += tool.monthlySpend;
+
+    const recommendation = generateRecommendation(
+      tool,
+      input.teamSize,
+      input.primaryUseCase
+    );
+
+    totalMonthlySavings +=
+      recommendation.monthlySavings;
+
+    totalAnnualSavings +=
+      recommendation.annualSavings;
+
+    recommendations.push(recommendation);
+  }
+
+  return {
+    recommendations,
+
+    totalMonthlySpend,
+
+    totalMonthlySavings,
+
+    totalAnnualSavings,
+  };
+};

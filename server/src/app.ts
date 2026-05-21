@@ -8,7 +8,7 @@ import hpp from "hpp";
 import apiRateLimiter from "./middleware/rateLimiter";
 import notFound from "./middleware/notFound";
 import errorHandler from "./middleware/errorHandler";
-
+import auditRoutes from "./routes/auditRoutes";
 const app = express();
 
 app.use(helmet());
@@ -24,7 +24,7 @@ app.use(xss());
 app.use(hpp());
 
 app.use(apiRateLimiter);
-
+app.use("/api/audit", auditRoutes);
 app.get("/health", (req, res) => {
   res.status(200).json({
     success: true,

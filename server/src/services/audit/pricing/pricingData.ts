@@ -1,50 +1,4 @@
-export interface ITokenPricing {
-  inputPerMillion: number;
-  outputPerMillion: number;
-  cacheWritePerMillion?: number;
-  cacheReadPerMillion?: number;
-}
-
-export interface IUsagePricing {
-  tokens?: Record<string, ITokenPricing>;
-  addOns?: Record<string, { price: number; unit: string }>;
-  customNotes?: string;
-}
-
-export interface IRecommendationMetadata {
-  canDowngradeTo?: string;
-  canUpgradeTo?: string;
-  alternativeTools: string[];
-  teamSizeTriggers: {
-    min: number;
-    max: number;
-    action: "downgrade" | "upgrade" | "consolidate" | "switch_to_enterprise";
-  }[];
-  featureFlagsRequired?: string[];
-}
-
-export interface IPlanData {
-  name: string;
-  monthlyPrice: number | null;
-  pricingType: "seat_flat" | "seat_plus_usage" | "pure_usage" | "hybrid";
-  recommendedMinTeamSize: number;
-  recommendedMaxTeamSize: number;
-  enterpriseOnly: boolean;
-  includedCredits?: number;
-  isAnnualOnly?: boolean;
-  notes: string;
-  usagePricing?: IUsagePricing;
-}
-
-export interface IToolPricingData {
-  toolName: string;
-  category: "ai_assistant" | "ai_code_editor" | "ai_api";
-  supportedUseCases: string[];
-  pricingPageUrl: string;
-  verifiedAt: string;
-  plans: IPlanData[];
-  recommendationMetadata: IRecommendationMetadata;
-}
+import type { IToolPricingData } from "./pricing.types";
 
 export const pricingData: Record<string, IToolPricingData> = {
   cursor: {
@@ -58,6 +12,7 @@ export const pricingData: Record<string, IToolPricingData> = {
         name: "Hobby",
         monthlyPrice: 0,
         pricingType: "seat_flat",
+        isProductionReady: false,
         recommendedMinTeamSize: 1,
         recommendedMaxTeamSize: 1,
         enterpriseOnly: false,
@@ -70,8 +25,9 @@ export const pricingData: Record<string, IToolPricingData> = {
         name: "Pro",
         monthlyPrice: 20,
         pricingType: "seat_flat",
+        isProductionReady: true,
         recommendedMinTeamSize: 1,
-        recommendedMaxTeamSize: 1,
+        recommendedMaxTeamSize: 2,
         enterpriseOnly: false,
         includedCredits: 20,
         notes: "Includes unlimited Tab completions, unlimited Auto mode using cheap routing, and $20 premium model credit pool.",
@@ -89,6 +45,7 @@ export const pricingData: Record<string, IToolPricingData> = {
         name: "Pro Plus",
         monthlyPrice: 60,
         pricingType: "seat_flat",
+        isProductionReady: true,
         recommendedMinTeamSize: 1,
         recommendedMaxTeamSize: 1,
         enterpriseOnly: false,
@@ -108,6 +65,7 @@ export const pricingData: Record<string, IToolPricingData> = {
         name: "Ultra",
         monthlyPrice: 200,
         pricingType: "seat_flat",
+        isProductionReady: true,
         recommendedMinTeamSize: 1,
         recommendedMaxTeamSize: 1,
         enterpriseOnly: false,
@@ -127,7 +85,8 @@ export const pricingData: Record<string, IToolPricingData> = {
         name: "Teams",
         monthlyPrice: 40,
         pricingType: "seat_flat",
-        recommendedMinTeamSize: 2,
+        isProductionReady: true,
+        recommendedMinTeamSize: 5,
         recommendedMaxTeamSize: 150,
         enterpriseOnly: false,
         includedCredits: 20,
@@ -140,7 +99,8 @@ export const pricingData: Record<string, IToolPricingData> = {
         name: "Enterprise",
         monthlyPrice: null,
         pricingType: "seat_flat",
-        recommendedMinTeamSize: 150,
+        isProductionReady: true,
+        recommendedMinTeamSize: 100,
         recommendedMaxTeamSize: 100000,
         enterpriseOnly: true,
         notes: "SAML/OIDC SSO, advanced audit logs, custom pooled usage credits, and dedicated enterprise account management.",
@@ -171,8 +131,9 @@ export const pricingData: Record<string, IToolPricingData> = {
         name: "Copilot Pro",
         monthlyPrice: 10,
         pricingType: "seat_plus_usage",
+        isProductionReady: true,
         recommendedMinTeamSize: 1,
-        recommendedMaxTeamSize: 1,
+        recommendedMaxTeamSize: 2,
         enterpriseOnly: false,
         includedCredits: 10,
         notes: "Billed monthly. Inline completions do not consume credits. Chat and agents consume new GitHub AI Credits.",
@@ -184,6 +145,7 @@ export const pricingData: Record<string, IToolPricingData> = {
         name: "Copilot Pro Plus",
         monthlyPrice: 39,
         pricingType: "seat_plus_usage",
+        isProductionReady: true,
         recommendedMinTeamSize: 1,
         recommendedMaxTeamSize: 1,
         enterpriseOnly: false,
@@ -197,7 +159,8 @@ export const pricingData: Record<string, IToolPricingData> = {
         name: "Copilot Business",
         monthlyPrice: 19,
         pricingType: "seat_plus_usage",
-        recommendedMinTeamSize: 2,
+        isProductionReady: true,
+        recommendedMinTeamSize: 5,
         recommendedMaxTeamSize: 250,
         enterpriseOnly: false,
         includedCredits: 30,
@@ -213,7 +176,8 @@ export const pricingData: Record<string, IToolPricingData> = {
         name: "Copilot Enterprise",
         monthlyPrice: 39,
         pricingType: "seat_plus_usage",
-        recommendedMinTeamSize: 250,
+        isProductionReady: true,
+        recommendedMinTeamSize: 100,
         recommendedMaxTeamSize: 100000,
         enterpriseOnly: true,
         includedCredits: 70,
@@ -244,6 +208,7 @@ export const pricingData: Record<string, IToolPricingData> = {
         name: "Free",
         monthlyPrice: 0,
         pricingType: "seat_flat",
+        isProductionReady: false,
         recommendedMinTeamSize: 1,
         recommendedMaxTeamSize: 1,
         enterpriseOnly: false,
@@ -253,6 +218,7 @@ export const pricingData: Record<string, IToolPricingData> = {
         name: "ChatGPT Go",
         monthlyPrice: 8,
         pricingType: "seat_flat",
+        isProductionReady: true,
         recommendedMinTeamSize: 1,
         recommendedMaxTeamSize: 1,
         enterpriseOnly: false,
@@ -262,8 +228,9 @@ export const pricingData: Record<string, IToolPricingData> = {
         name: "Plus",
         monthlyPrice: 20,
         pricingType: "seat_flat",
+        isProductionReady: true,
         recommendedMinTeamSize: 1,
-        recommendedMaxTeamSize: 1,
+        recommendedMaxTeamSize: 2,
         enterpriseOnly: false,
         notes: "Access to frontier GPT-5.5, Deep Research, Sora video engine, and persistent standalone Agent Mode."
       },
@@ -271,6 +238,7 @@ export const pricingData: Record<string, IToolPricingData> = {
         name: "Pro Mid-Tier",
         monthlyPrice: 100,
         pricingType: "seat_flat",
+        isProductionReady: true,
         recommendedMinTeamSize: 1,
         recommendedMaxTeamSize: 5,
         enterpriseOnly: false,
@@ -280,6 +248,7 @@ export const pricingData: Record<string, IToolPricingData> = {
         name: "Pro High-Tier",
         monthlyPrice: 200,
         pricingType: "seat_flat",
+        isProductionReady: true,
         recommendedMinTeamSize: 1,
         recommendedMaxTeamSize: 5,
         enterpriseOnly: false,
@@ -289,7 +258,8 @@ export const pricingData: Record<string, IToolPricingData> = {
         name: "Business",
         monthlyPrice: 25,
         pricingType: "seat_flat",
-        recommendedMinTeamSize: 2,
+        isProductionReady: true,
+        recommendedMinTeamSize: 5,
         recommendedMaxTeamSize: 150,
         enterpriseOnly: false,
         notes: "Requires 2-seat minimum. Price drops to $20/seat on annual billing layouts. Workspaces never train models on internal data."
@@ -298,7 +268,8 @@ export const pricingData: Record<string, IToolPricingData> = {
         name: "Enterprise",
         monthlyPrice: 60,
         pricingType: "seat_flat",
-        recommendedMinTeamSize: 150,
+        isProductionReady: true,
+        recommendedMinTeamSize: 100,
         recommendedMaxTeamSize: 100000,
         enterpriseOnly: true,
         isAnnualOnly: true,
@@ -326,6 +297,7 @@ export const pricingData: Record<string, IToolPricingData> = {
         name: "Free",
         monthlyPrice: 0,
         pricingType: "seat_flat",
+        isProductionReady: false,
         recommendedMinTeamSize: 1,
         recommendedMaxTeamSize: 1,
         enterpriseOnly: false,
@@ -335,6 +307,7 @@ export const pricingData: Record<string, IToolPricingData> = {
         name: "Pro",
         monthlyPrice: 17,
         pricingType: "seat_flat",
+        isProductionReady: true,
         recommendedMinTeamSize: 1,
         recommendedMaxTeamSize: 1,
         enterpriseOnly: false,
@@ -344,6 +317,7 @@ export const pricingData: Record<string, IToolPricingData> = {
         name: "Max 5x",
         monthlyPrice: 100,
         pricingType: "seat_flat",
+        isProductionReady: true,
         recommendedMinTeamSize: 1,
         recommendedMaxTeamSize: 1,
         enterpriseOnly: false,
@@ -353,6 +327,7 @@ export const pricingData: Record<string, IToolPricingData> = {
         name: "Max 20x",
         monthlyPrice: 200,
         pricingType: "seat_flat",
+        isProductionReady: true,
         recommendedMinTeamSize: 1,
         recommendedMaxTeamSize: 1,
         enterpriseOnly: false,
@@ -362,7 +337,8 @@ export const pricingData: Record<string, IToolPricingData> = {
         name: "Team Standard",
         monthlyPrice: 20,
         pricingType: "seat_flat",
-        recommendedMinTeamSize: 2,
+        isProductionReady: true,
+        recommendedMinTeamSize: 5,
         recommendedMaxTeamSize: 150,
         enterpriseOnly: false,
         notes: "Billed at $25/user/month on annual agreements. Includes centralized administration and standard data privacy policies."
@@ -371,7 +347,8 @@ export const pricingData: Record<string, IToolPricingData> = {
         name: "Team Premium",
         monthlyPrice: 100,
         pricingType: "seat_flat",
-        recommendedMinTeamSize: 2,
+        isProductionReady: true,
+        recommendedMinTeamSize: 10,
         recommendedMaxTeamSize: 150,
         enterpriseOnly: false,
         notes: "Billed at $120/user/month on annual tracking. Standardizes access permissions for Claude Code execution profiles across teams."
@@ -380,7 +357,8 @@ export const pricingData: Record<string, IToolPricingData> = {
         name: "Enterprise",
         monthlyPrice: 20,
         pricingType: "hybrid",
-        recommendedMinTeamSize: 150,
+        isProductionReady: true,
+        recommendedMinTeamSize: 100,
         recommendedMaxTeamSize: 100000,
         enterpriseOnly: true,
         isAnnualOnly: true,
@@ -411,6 +389,7 @@ export const pricingData: Record<string, IToolPricingData> = {
         name: "Pay As You Go",
         monthlyPrice: 0,
         pricingType: "pure_usage",
+        isProductionReady: true,
         recommendedMinTeamSize: 1,
         recommendedMaxTeamSize: 100000,
         enterpriseOnly: false,
@@ -455,6 +434,7 @@ export const pricingData: Record<string, IToolPricingData> = {
         name: "Pay As You Go",
         monthlyPrice: 0,
         pricingType: "pure_usage",
+        isProductionReady: true,
         recommendedMinTeamSize: 1,
         recommendedMaxTeamSize: 100000,
         enterpriseOnly: false,
@@ -504,6 +484,7 @@ export const pricingData: Record<string, IToolPricingData> = {
         name: "Gemini Advanced",
         monthlyPrice: 19.99,
         pricingType: "seat_flat",
+        isProductionReady: true,
         recommendedMinTeamSize: 1,
         recommendedMaxTeamSize: 1,
         enterpriseOnly: false,
@@ -513,6 +494,7 @@ export const pricingData: Record<string, IToolPricingData> = {
         name: "Gemini for Workspace",
         monthlyPrice: 30,
         pricingType: "seat_flat",
+        isProductionReady: true,
         recommendedMinTeamSize: 1,
         recommendedMaxTeamSize: 100000,
         enterpriseOnly: false,
@@ -537,6 +519,7 @@ export const pricingData: Record<string, IToolPricingData> = {
         name: "Free Tier",
         monthlyPrice: 0,
         pricingType: "seat_flat",
+        isProductionReady: false,
         recommendedMinTeamSize: 1,
         recommendedMaxTeamSize: 1,
         enterpriseOnly: false,
@@ -546,6 +529,7 @@ export const pricingData: Record<string, IToolPricingData> = {
         name: "Pro",
         monthlyPrice: 20,
         pricingType: "seat_flat",
+        isProductionReady: true,
         recommendedMinTeamSize: 1,
         recommendedMaxTeamSize: 1,
         enterpriseOnly: false,
@@ -555,6 +539,7 @@ export const pricingData: Record<string, IToolPricingData> = {
         name: "Teams",
         monthlyPrice: 40,
         pricingType: "seat_flat",
+        isProductionReady: true,
         recommendedMinTeamSize: 2,
         recommendedMaxTeamSize: 100000,
         enterpriseOnly: false,
