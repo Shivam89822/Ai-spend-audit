@@ -1,0 +1,18 @@
+{
+  "name": "ai-spend-audit",
+  "version": "0.1.0",
+  "description": "AI-powered platform for auditing and analyzing AI service spending",
+  "private": true,
+  "workspaces": [
+    "client",
+    "server"
+  ],
+  "scripts": {
+    "dev": "concurrently \"npm run dev -w client\" \"npm run dev -w server\"",
+    "build": "npm run build -w client && npm run build -w server",
+    "test": "npm run test -w client && npm run test -w server"
+  },
+  "devDependencies": {
+    "concurrently": "^7.0.0"
+  }
+}
