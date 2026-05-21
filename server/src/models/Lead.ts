@@ -1,24 +1,56 @@
-// Lead model
-export interface ILead {
-  id: string;
+import mongoose, { Schema, Document } from "mongoose";
+
+export interface ILead extends Document {
   email: string;
-  name: string;
-  company?: string;
+
+  companyName?: string;
+
+  role?: string;
+
+  teamSize?: number;
+
+  auditId: mongoose.Types.ObjectId;
+
   createdAt: Date;
+
+  updatedAt: Date;
 }
 
-export class Lead implements ILead {
-  id: string;
-  email: string;
-  name: string;
-  company?: string;
-  createdAt: Date;
+const LeadSchema = new Schema<ILead>(
+  {
+    email: {
+      type: String,
+      required: true,
+      lowercase: true,
+      trim: true,
+    },
 
-  constructor(email: string, name: string, company?: string) {
-    this.id = '';
-    this.email = email;
-    this.name = name;
-    this.company = company;
-    this.createdAt = new Date();
+    companyName: {
+      type: String,
+      trim: true,
+    },
+
+    role: {
+      type: String,
+      trim: true,
+    },
+
+    teamSize: {
+      type: Number,
+      min: 1,
+    },
+
+    auditId: {
+      type: Schema.Types.ObjectId,
+      ref: "Audit",
+      required: true,
+    },
+  },
+  {
+    timestamps: true,
   }
-}
+);
+
+const Lead = mongoose.model<ILead>("Lead", LeadSchema);
+
+export default Lead;

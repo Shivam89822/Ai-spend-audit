@@ -1,22 +1,39 @@
-// Express app configuration
-import express from 'express';
-import auditRoutes from './routes/auditRoutes';
-import leadRoutes from './routes/leadRoutes';
-import summaryRoutes from './routes/summaryRoutes';
-import errorHandler from './middleware/errorHandler';
+import express from "express";
+import cors from "cors";
+import helmet from "helmet";
+import morgan from "morgan";
+import xss from "xss-clean";
+import hpp from "hpp";
+
+import apiRateLimiter from "./middleware/rateLimiter";
+import notFound from "./middleware/notFound";
+import errorHandler from "./middleware/errorHandler";
 
 const app = express();
 
-// Middleware
+app.use(helmet());
+
+app.use(cors());
+
 app.use(express.json());
-app.use(express.urlencoded({ extended: true }));
 
-// Routes
-app.use('/api/audits', auditRoutes);
-app.use('/api/leads', leadRoutes);
-app.use('/api/summaries', summaryRoutes);
+app.use(morgan("dev"));
 
-// Error handling
+app.use(xss());
+
+app.use(hpp());
+
+app.use(apiRateLimiter);
+
+app.get("/health", (req, res) => {
+  res.status(200).json({
+    success: true,
+    message: "Server is running",
+  });
+});
+
+app.use(notFound);
+
 app.use(errorHandler);
 
 export default app;
