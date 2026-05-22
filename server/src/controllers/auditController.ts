@@ -76,3 +76,36 @@ export const runAuditController = async (
     });
   }
 };
+
+export const getAuditByShareIdController = async (
+  req: Request,
+  res: Response
+) => {
+  try {
+    const { shareId } = req.params;
+
+    const audit = await Audit.findOne({
+      shareId,
+    });
+
+    if (!audit) {
+      return res.status(404).json({
+        success: false,
+        message: "Audit not found.",
+      });
+    }
+
+    return res.status(200).json({
+      success: true,
+      data: audit,
+    });
+  } catch (error) {
+    console.error(error);
+
+    return res.status(500).json({
+      success: false,
+      message:
+        "Internal server error while fetching audit.",
+    });
+  }
+};
