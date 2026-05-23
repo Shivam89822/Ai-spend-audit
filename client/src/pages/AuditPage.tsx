@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useNavigate } from "react-router-dom";
 
@@ -14,7 +14,6 @@ import {
   Plus, 
   Trash2, 
   DollarSign, 
-  TrendingDown, 
   AlertTriangle, 
   Zap, 
   ChevronDown 
@@ -32,12 +31,12 @@ interface SelectedTool {
 }
 
 const SUPPORTED_TOOLS = [
-  { name: 'Cursor', defaultPrice: 20, plans: ['Pro', 'Business', 'Enterprise'] },
-  { name: 'ChatGPT', defaultPrice: 20, plans: ['Plus', 'Team', 'Enterprise'] },
-  { name: 'Claude', defaultPrice: 20, plans: ['Pro', 'Team', 'Enterprise'] },
-  { name: 'GitHub Copilot', defaultPrice: 19, plans: ['Individual', 'Business', 'Enterprise'] },
-  { name: 'Gemini', defaultPrice: 20, plans: ['Advanced', 'Business', 'Enterprise'] },
-  { name: 'Windsurf', defaultPrice: 15, plans: ['Pro', 'Teams'] },
+  { name: 'Cursor', defaultPrice: 20, plans: ['Hobby', 'Pro', 'Pro Plus', 'Ultra', 'Teams', 'Enterprise'] },
+  { name: 'ChatGPT', defaultPrice: 20, plans: ['Free', 'ChatGPT Go', 'Plus', 'Pro Mid-Tier', 'Pro High-Tier', 'Business', 'Enterprise'] },
+  { name: 'Claude', defaultPrice: 20, plans: ['Free', 'Pro', 'Max 5x', 'Max 20x', 'Team Standard', 'Team Premium', 'Enterprise'] },
+  { name: 'GitHub Copilot', defaultPrice: 19, plans: ['Copilot Pro', 'Copilot Pro Plus', 'Copilot Business', 'Copilot Enterprise'] },
+  { name: 'Gemini', defaultPrice: 20, plans: ['Gemini Advanced', 'Gemini for Workspace'] },
+  { name: 'Windsurf', defaultPrice: 15, plans: ['Free Tier', 'Pro', 'Teams'] },
 ];
 
 export const AuditPage: React.FC = () => {
@@ -45,33 +44,11 @@ export const AuditPage: React.FC = () => {
   const [teamSize, setTeamSize] = useState<number>(10);
   const [tools, setTools] = useState<SelectedTool[]>([
     { id: '1', name: 'Cursor', plan: 'Pro', spend: 20, seats: 10 },
-    { id: '2', name: 'ChatGPT', plan: 'Team', spend: 25, seats: 8 }
+    { id: '2', name: 'ChatGPT', plan: 'Business', spend: 25, seats: 8 }
   ]);
 
   const navigate = useNavigate();
   const [isGenerating, setIsGenerating] = useState<boolean>(false);
-  const [metrics, setMetrics] = useState({ monthlySpend: 0, potentialSavings: 0, annualWaste: 0 });
-
-  useEffect(() => {
-    let totalMonthly = 0;
-    tools.forEach(t => {
-      totalMonthly += t.spend * t.seats;
-    });
-
-    let wasteMultiplier = 0.25; 
-    if (useCase === 'coding') wasteMultiplier = 0.18;
-    if (useCase === 'writing') wasteMultiplier = 0.32;
-    if (teamSize > 50) wasteMultiplier += 0.08; 
-
-    const savings = Math.round(totalMonthly * wasteMultiplier);
-    const waste = Math.round(savings * 12);
-
-    setMetrics({
-      monthlySpend: totalMonthly,
-      potentialSavings: savings,
-      annualWaste: waste
-    });
-  }, [tools, teamSize, useCase]);
 
   const addTool = () => {
     const defaultTool = SUPPORTED_TOOLS[0];
@@ -119,7 +96,7 @@ export const AuditPage: React.FC = () => {
 
         currentPlan: tool.plan,
 
-        monthlySpend: tool.spend,
+        monthlySpend: tool.spend * tool.seats,
 
         seats: tool.seats,
       })),
@@ -149,8 +126,8 @@ export const AuditPage: React.FC = () => {
 
   const blockVariants = {
     hidden: { opacity: 0, y: 30 },
-    visible: { opacity: 1, y: 0, transition: { type: "spring", stiffness: 100, damping: 15 } }
-  };
+    visible: { opacity: 1, y: 0, transition: { type: "spring" as const, stiffness: 100, damping: 15 } }
+  } as const;
 
   return (
     <div className="audit-page-wrapper">
@@ -278,42 +255,42 @@ export const AuditPage: React.FC = () => {
               <div className="telemetry-metric-card">
                 <div className="card-ambient-glow burn-rate"></div>
                 <div className="metric-header-row">
-                  <span className="metric-label-meta">Calculated Monthly Burn</span>
+                  <span className="metric-label-meta">Configured Monthly Burn</span>
                   <DollarSign size={16} className="metric-vector-icon color-burn" />
                 </div>
                 <div className="metric-numerical-display">
-                  ${metrics.monthlySpend.toLocaleString()}
+                  ${tools.reduce((acc, t) => acc + t.spend * t.seats, 0).toLocaleString()}
                 </div>
                 <div className="metric-trend-footer">
-                  Based on {tools.reduce((acc, t) => acc + t.seats, 0)} distributed instances
+                  Based on {tools.reduce((acc, t) => acc + t.seats, 0)} seats across {tools.length} tools
                 </div>
               </div>
 
               <div className="telemetry-metric-card highlight-potency">
                 <div className="card-ambient-glow optimization-potency"></div>
                 <div className="metric-header-row">
-                  <span className="metric-label-meta">Identified Monthly Reclaim</span>
-                  <TrendingDown size={16} className="metric-vector-icon color-reclaim" />
+                  <span className="metric-label-meta">Input Configuration</span>
+                  <Layers size={16} className="metric-vector-icon color-reclaim" />
                 </div>
                 <div className="metric-numerical-display gradient-text-savings">
-                  ${metrics.potentialSavings.toLocaleString()}
+                  {tools.length} configured engines
                 </div>
                 <div className="metric-trend-footer bright-green">
-                  ~{metrics.monthlySpend > 0 ? Math.round((metrics.potentialSavings / metrics.monthlySpend) * 100) : 0}% tier waste detected
+                  Frontend collects current stack inputs only
                 </div>
               </div>
 
               <div className="telemetry-metric-card">
                 <div className="card-ambient-glow annual-bleed"></div>
                 <div className="metric-header-row">
-                  <span className="metric-label-meta">Extrapolated Annual Waste</span>
+                  <span className="metric-label-meta">Backend Audit Ready</span>
                   <AlertTriangle size={16} className="metric-vector-icon color-bleed" />
                 </div>
                 <div className="metric-numerical-display color-critical">
-                  ${metrics.annualWaste.toLocaleString()}
+                  Backend validates actual plan names and spend
                 </div>
                 <div className="metric-trend-footer text-muted">
-                  Projected 12-Month continuous leakage path
+                  No frontend savings simulation is performed
                 </div>
               </div>
             </div>
