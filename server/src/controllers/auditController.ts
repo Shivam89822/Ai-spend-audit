@@ -3,6 +3,7 @@ import { Request, Response } from "express";
 import Audit from "../models/Audit";
 
 import { runAudit } from "../services/audit/auditEngine";
+import { generateAISummary } from "../services/ai/generateSummary";
 
 import { generateShareId } from "../utils/generateShareId";
 
@@ -26,6 +27,11 @@ export const runAuditController = async (
     const auditResult = runAudit(req.body);
 
     const shareId = generateShareId();
+
+    const aiSummary = await generateAISummary(
+      req.body,
+      auditResult
+    );
 
     const auditDocument = await Audit.create({
       shareId,
@@ -51,8 +57,7 @@ export const runAuditController = async (
           auditResult.totalAnnualSavings,
       },
 
-      aiSummary:
-        "Audit completed successfully.",
+      aiSummary,
 
       status: "generated",
     });

@@ -1,12 +1,71 @@
-﻿import { useState } from "react";
-import { useLocation } from "react-router-dom";
+import { useEffect, useState } from "react";
+import { useLocation, useParams } from "react-router-dom";
+import type { AuditResponse } from "../services/auditApi";
+import {
+  getAuditByShareIdRequest,
+} from "../services/auditApi";
 import "./ResultsPage.css";
 
 export default function ResultsPage() {
   const location = useLocation();
+  const { shareId: shareIdParam } = useParams();
   const [copySuccess, setCopySuccess] = useState<string>("");
+  const [audit, setAudit] = useState<AuditResponse | null>(
+    (location.state as AuditResponse | null) ?? null
+  );
+  const [isLoading, setIsLoading] = useState<boolean>(
+    !location.state
+  );
+  const [loadError, setLoadError] = useState<string>("");
 
-  const audit = location.state as any;
+  useEffect(() => {
+    if (location.state) {
+      setAudit(location.state as AuditResponse);
+      setIsLoading(false);
+      setLoadError("");
+      return;
+    }
+
+    if (!shareIdParam) {
+      setIsLoading(false);
+      setLoadError("Audit share ID is missing.");
+      return;
+    }
+
+    const loadAudit = async () => {
+      try {
+        setIsLoading(true);
+        setLoadError("");
+
+        const response =
+          await getAuditByShareIdRequest(shareIdParam);
+
+        setAudit(response.data as AuditResponse);
+      } catch (error) {
+        console.error(error);
+        setLoadError(
+          "This audit could not be loaded. It may have expired or the link may be invalid."
+        );
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    void loadAudit();
+  }, [location.state, shareIdParam]);
+
+  if (isLoading) {
+    return (
+      <div className="results-page-shell">
+        <div className="glass-card">
+          <h1>Loading audit</h1>
+          <p>
+            Fetching the saved audit from the server so this share link works on any device.
+          </p>
+        </div>
+      </div>
+    );
+  }
 
   if (!audit) {
     return (
@@ -14,8 +73,8 @@ export default function ResultsPage() {
         <div className="glass-card">
           <h1>Audit data unavailable</h1>
           <p>
-            No live audit state was found. Please return to the audit page and
-            re-run the analysis.
+            {loadError ||
+              "No live audit state was found. Please return to the audit page and re-run the analysis."}
           </p>
         </div>
       </div>
@@ -27,12 +86,15 @@ export default function ResultsPage() {
   const totalAnnualSavings = audit.totals?.totalAnnualSavings ?? 0;
   const shareId = audit.shareId ?? "--";
   const primaryUseCase = audit.primaryUseCase ?? "mixed";
+  const aiSummary =
+    audit.aiSummary ??
+    "Summary generation is unavailable for this audit.";
   const recommendationList = Array.isArray(audit.recommendations)
     ? audit.recommendations
     : [];
 
   const confidenceLabels = recommendationList.reduce(
-    (counts: Record<string, number>, item: any) => {
+    (counts: Record<string, number>, item) => {
       const key = item.confidence ?? "low";
       counts[key] = (counts[key] || 0) + 1;
       return counts;
@@ -58,7 +120,9 @@ export default function ResultsPage() {
           <div className="results-hero-top">
             <div>
               <span className="audit-badge">AI Spend Audit</span>
-              <h1 className="results-hero-title">Financially intelligent AI optimization</h1>
+              <h1 className="results-hero-title">
+                Financially intelligent AI optimization
+              </h1>
               <p className="results-hero-copy">
                 Results are driven by backend validation and pricing metadata.
                 The platform now shows real recommendation cards, confidence
@@ -79,18 +143,30 @@ export default function ResultsPage() {
           <div className="results-metrics-grid">
             <div className="glass-card">
               <span className="card-label">Monthly Spend</span>
-              <div className="card-value">${totalMonthlySpend.toLocaleString()}</div>
-              <p className="card-note">Total committed spend across configured AI engines.</p>
+              <div className="card-value">
+                ${totalMonthlySpend.toLocaleString()}
+              </div>
+              <p className="card-note">
+                Total committed spend across configured AI engines.
+              </p>
             </div>
             <div className="glass-card">
               <span className="card-label">Monthly Savings</span>
-              <div className="card-value">${totalMonthlySavings.toLocaleString()}</div>
-              <p className="card-note">Backend forecast based on validated plan recommendations.</p>
+              <div className="card-value">
+                ${totalMonthlySavings.toLocaleString()}
+              </div>
+              <p className="card-note">
+                Backend forecast based on validated plan recommendations.
+              </p>
             </div>
             <div className="glass-card">
               <span className="card-label">Annual Run-Rate Impact</span>
-              <div className="card-value">${totalAnnualSavings.toLocaleString()}</div>
-              <p className="card-note">Projected annual cash recovery from recommended optimizations.</p>
+              <div className="card-value">
+                ${totalAnnualSavings.toLocaleString()}
+              </div>
+              <p className="card-note">
+                Projected annual cash recovery from recommended optimizations.
+              </p>
             </div>
           </div>
         </div>
@@ -101,19 +177,25 @@ export default function ResultsPage() {
           <div>
             <h2>Recommendation dashboard</h2>
             <p>
-              {recommendationList.length} recommendation{recommendationList.length === 1 ? "" : "s"} generated for {primaryUseCase} coverage.
+              {recommendationList.length} recommendation
+              {recommendationList.length === 1 ? "" : "s"} generated for{" "}
+              {primaryUseCase} coverage.
             </p>
           </div>
         </div>
-        {/* Recommendation cards will be rendered here */}
 
         <div className="recommendation-grid">
-          {recommendationList.map((item: any, index: number) => (
-            <article key={`${item.toolName}-${index}`} className="rec-card">
+          {recommendationList.map((item, index) => (
+            <article
+              key={`${item.toolName}-${index}`}
+              className="rec-card"
+            >
               <div className="rec-card-header">
                 <div>
                   <strong>{item.toolName}</strong>
-                  <div className="card-note">Current plan: {item.currentPlan}</div>
+                  <div className="card-note">
+                    Current plan: {item.currentPlan}
+                  </div>
                 </div>
                 <span className={`rec-badge badge-${item.confidence}`}>
                   {item.confidence?.toUpperCase()}
@@ -140,7 +222,9 @@ export default function ResultsPage() {
                   )}
                   <div className="rec-highlight-item">
                     <span>Monthly uplift</span>
-                    <strong>${item.monthlySavings?.toLocaleString()}</strong>
+                    <strong>
+                      ${item.monthlySavings?.toLocaleString()}
+                    </strong>
                   </div>
                 </div>
               </div>
@@ -154,7 +238,10 @@ export default function ResultsPage() {
           <div className="section-heading">
             <div>
               <h2>Confidence and reasoning</h2>
-              <p>Backend recommendation confidence is based on plan validation and team fit.</p>
+              <p>
+                Backend recommendation confidence is based on plan validation
+                and team fit.
+              </p>
             </div>
           </div>
           <div className="rec-highlights">
@@ -179,7 +266,10 @@ export default function ResultsPage() {
           <div className="section-heading">
             <div>
               <h2>Summary</h2>
-              <p>Audit validated against backend pricing metadata and current team planning.</p>
+              <p>
+                Audit validated against backend pricing metadata and current
+                team planning.
+              </p>
             </div>
           </div>
           <div className="rec-highlights">
@@ -196,6 +286,7 @@ export default function ResultsPage() {
               <strong>{shareId}</strong>
             </div>
           </div>
+          <p style={{ marginTop: 20, lineHeight: 1.7 }}>{aiSummary}</p>
         </div>
       </section>
     </div>

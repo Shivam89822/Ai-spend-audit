@@ -1,92 +1,24 @@
-import mongoose, { Schema, Document } from "mongoose";
+import dotenv from "dotenv";
 
-interface Tool {
-    name: string;
-    monthlyCost: number;
-    yearlyCost: number;
-    category: string;
-}
+dotenv.config();
 
-interface AuditResults {
-    totalMonthlySpend: number;
-    totalYearlySpend: number;
-    potentialSavings: number;
-    aiSummary: string;
-}
+export const getRequiredEnv = (name: string): string => {
+  const value = process.env[name]?.trim();
 
-export interface AuditDocument extends Document {
-    companyName: string;
-    industry: string;
-    tools: Tool[];
-    auditResults: AuditResults;
-    createdAt: Date;
-}
+  if (!value) {
+    throw new Error(`Missing required environment variable: ${name}`);
+  }
 
-const ToolSchema = new Schema<Tool>({
-    name: {
-        type: String,
-        required: true
-    },
-    monthlyCost: {
-        type: Number,
-        required: true
-    },
-    yearlyCost: {
-        type: Number,
-        required: true
-    },
-    category: {
-        type: String,
-        required: true
-    }
-});
+  return value;
+};
 
-const AuditResultsSchema = new Schema<AuditResults>({
-    totalMonthlySpend: {
-        type: Number,
-        required: true
-    },
-    totalYearlySpend: {
-        type: Number,
-        required: true
-    },
-    potentialSavings: {
-        type: Number,
-        required: true
-    },
-    aiSummary: {
-        type: String,
-        required: true
-    }
-});
+export const env = {
+  port: Number(process.env.PORT || 5000),
+  mongoUri: process.env.MONGO_URI?.trim() || "",
+  geminiApiKey: process.env.GEMINI_API_KEY?.trim() || "",
+  geminiModel:
+    process.env.GEMINI_MODEL?.trim() || "gemini-2.0-flash",
+};
 
-const AuditSchema = new Schema<AuditDocument>(
-    {
-        companyName: {
-            type: String,
-            required: true
-        },
-
-        industry: {
-            type: String,
-            required: true
-        },
-
-        tools: {
-            type: [ToolSchema],
-            required: true
-        },
-
-        auditResults: {
-            type: AuditResultsSchema,
-            required: true
-        }
-    },
-    {
-        timestamps: true
-    }
-);
-
-const Audit = mongoose.model<AuditDocument>("Audit", AuditSchema);
-
-export default Audit;
+export const hasGeminiConfig = (): boolean =>
+  Boolean(env.geminiApiKey);
