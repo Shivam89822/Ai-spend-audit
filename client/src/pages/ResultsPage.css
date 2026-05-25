@@ -105,7 +105,8 @@
 
 .recommendations-section,
 .confidence-section,
-.share-section {
+.share-section,
+.cta-section {
   display: grid;
   gap: 1rem;
 }
@@ -241,6 +242,79 @@
 .copy-button:hover {
   background: rgba(104, 116, 255, 0.24);
   transform: translateY(-1px);
+}
+
+.action-card {
+  display: grid;
+  gap: 1.25rem;
+}
+
+.action-high {
+  border-color: rgba(102, 214, 146, 0.35);
+  background:
+    radial-gradient(circle at top right, rgba(102, 214, 146, 0.16), transparent 36%),
+    rgba(10, 12, 24, 0.84);
+}
+
+.action-mid {
+  border-color: rgba(120, 138, 255, 0.26);
+}
+
+.action-low {
+  border-color: rgba(255, 206, 106, 0.28);
+  background:
+    radial-gradient(circle at top right, rgba(255, 206, 106, 0.12), transparent 34%),
+    rgba(10, 12, 24, 0.84);
+}
+
+.action-card-footer {
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+.action-pill-row {
+  display: flex;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+}
+
+.action-pill {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.65rem 0.95rem;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  color: rgba(232, 235, 255, 0.82);
+  font-size: 0.88rem;
+}
+
+.action-buttons {
+  display: flex;
+  gap: 0.8rem;
+  flex-wrap: wrap;
+  align-items: center;
+}
+
+.secondary-action-link {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 46px;
+  padding: 0.9rem 1.1rem;
+  border-radius: 999px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  background: rgba(255, 255, 255, 0.03);
+  color: #eef2ff;
+  text-decoration: none;
+  font-weight: 700;
+}
+
+.secondary-action-link:hover {
+  background: rgba(255, 255, 255, 0.08);
 }
 
 @media (max-width: 930px) {

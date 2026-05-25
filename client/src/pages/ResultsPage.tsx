@@ -92,6 +92,20 @@ export default function ResultsPage() {
   const recommendationList = Array.isArray(audit.recommendations)
     ? audit.recommendations
     : [];
+  const isHighSavings =
+    totalMonthlySavings > 500;
+  const isLowSavings =
+    totalMonthlySavings < 100;
+  const actionTitle = isHighSavings
+    ? "Credex can help capture more of this upside"
+    : isLowSavings
+      ? "You are already spending fairly well"
+      : "Save this audit and revisit the next round of optimizations";
+  const actionBody = isHighSavings
+    ? "This stack shows meaningful monthly savings potential. Save the report, share it internally, and use Credex as the next conversation when you want to reduce effective AI costs further."
+    : isLowSavings
+      ? "This audit does not show major waste right now, and that is a good outcome. Save the report and stay on the list so you can be notified when new tool or pricing changes create better opportunities."
+      : "There is useful savings potential here, but it is not an urgent procurement event. Save the report, review the recommendations with your team, and come back when your stack changes.";
 
   const confidenceLabels = recommendationList.reduce(
     (counts: Record<string, number>, item) => {
@@ -262,7 +276,7 @@ export default function ResultsPage() {
       </section>
 
       <section className="share-section">
-        <div className="glass-card">
+        <div className="glass-card" id="summary">
           <div className="section-heading">
             <div>
               <h2>Summary</h2>
@@ -287,6 +301,53 @@ export default function ResultsPage() {
             </div>
           </div>
           <p style={{ marginTop: 20, lineHeight: 1.7 }}>{aiSummary}</p>
+        </div>
+      </section>
+
+      <section className="cta-section">
+        <div
+          id="lead-capture"
+          className={`glass-card action-card ${
+            isHighSavings
+              ? "action-high"
+              : isLowSavings
+                ? "action-low"
+                : "action-mid"
+          }`}
+        >
+          <div className="section-heading">
+            <div>
+              <h2>{actionTitle}</h2>
+              <p>{actionBody}</p>
+            </div>
+          </div>
+          <div className="action-card-footer">
+            <div className="action-pill-row">
+              <span className="action-pill">
+                Monthly savings: $
+                {totalMonthlySavings.toLocaleString()}
+              </span>
+              <span className="action-pill">
+                Annual impact: $
+                {totalAnnualSavings.toLocaleString()}
+              </span>
+            </div>
+            <div className="action-buttons">
+              <button className="copy-button" onClick={copyShareId}>
+                {copySuccess || "Copy Share ID"}
+              </button>
+              <a
+                className="secondary-action-link"
+                href={isHighSavings ? "#lead-capture" : "#summary"}
+              >
+                {isHighSavings
+                  ? "Request follow-up"
+                  : isLowSavings
+                    ? "Save and monitor"
+                    : "Review recommendations"}
+              </a>
+            </div>
+          </div>
         </div>
       </section>
     </div>
