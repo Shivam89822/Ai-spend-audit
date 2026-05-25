@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useNavigate } from "react-router-dom";
 
@@ -20,7 +20,8 @@ import {
 } from 'lucide-react';
 import './AuditPage.css';
 
-type UseCase = 'coding' | 'writing' | 'research' | 'mixed';
+type UseCase = 'coding' | 'writing' | 'research' | 'data' | 'mixed';
+const STORAGE_KEY = 'ai-spend-audit-form';
 
 interface SelectedTool {
   id: string;
@@ -34,6 +35,8 @@ const SUPPORTED_TOOLS = [
   { name: 'ChatGPT', defaultPrice: 20, plans: ['Free', 'ChatGPT Go', 'Plus', 'Pro Mid-Tier', 'Pro High-Tier', 'Business', 'Enterprise'] },
   { name: 'Claude', defaultPrice: 20, plans: ['Free', 'Pro', 'Max 5x', 'Max 20x', 'Team Standard', 'Team Premium', 'Enterprise'] },
   { name: 'GitHub Copilot', defaultPrice: 19, plans: ['Copilot Pro', 'Copilot Pro Plus', 'Copilot Business', 'Copilot Enterprise'] },
+  { name: 'Anthropic API', defaultPrice: 0, plans: ['Pay As You Go'] },
+  { name: 'OpenAI API', defaultPrice: 0, plans: ['Pay As You Go'] },
   { name: 'Gemini', defaultPrice: 20, plans: ['Gemini Advanced', 'Gemini for Workspace'] },
   { name: 'Windsurf', defaultPrice: 15, plans: ['Free Tier', 'Pro', 'Teams'] },
 ];
@@ -48,6 +51,53 @@ export const AuditPage: React.FC = () => {
 
   const navigate = useNavigate();
   const [isGenerating, setIsGenerating] = useState<boolean>(false);
+
+  useEffect(() => {
+    const savedState = window.localStorage.getItem(STORAGE_KEY);
+
+    if (!savedState) {
+      return;
+    }
+
+    try {
+      const parsed = JSON.parse(savedState) as {
+        useCase?: UseCase;
+        teamSize?: number;
+        tools?: SelectedTool[];
+      };
+
+      if (parsed.useCase) {
+        setUseCase(parsed.useCase);
+      }
+
+      if (
+        typeof parsed.teamSize === 'number' &&
+        parsed.teamSize >= 1
+      ) {
+        setTeamSize(parsed.teamSize);
+      }
+
+      if (
+        Array.isArray(parsed.tools) &&
+        parsed.tools.length > 0
+      ) {
+        setTools(parsed.tools);
+      }
+    } catch (error) {
+      console.error('Failed to restore audit form state', error);
+    }
+  }, []);
+
+  useEffect(() => {
+    window.localStorage.setItem(
+      STORAGE_KEY,
+      JSON.stringify({
+        useCase,
+        teamSize,
+        tools,
+      })
+    );
+  }, [teamSize, tools, useCase]);
 
   const addTool = () => {
     const defaultTool = SUPPORTED_TOOLS[0];
@@ -182,6 +232,7 @@ export const AuditPage: React.FC = () => {
                 { id: 'coding', label: 'Engineering', sub: 'Cursor, Copilot, Windsurf', icon: <Code2 /> },
                 { id: 'writing', label: 'Marketing / Copy', sub: 'Claude, ChatGPT Pro', icon: <PenTool /> },
                 { id: 'research', label: 'Analysis & R&D', sub: 'Gemini Ultra, Custom LLMs', icon: <SearchCode /> },
+                { id: 'data', label: 'Data / API', sub: 'OpenAI API, Anthropic API', icon: <Cpu /> },
                 { id: 'mixed', label: 'Omni-Stack', sub: 'Blended Cross-Departmental', icon: <Cpu /> },
               ].map((item) => (
                 <div 
