@@ -1,12 +1,16 @@
-// Lead routes
-import { Router } from 'express';
-import { getLeads, createLead, updateLead, deleteLead } from '../controllers/leadController';
+import { Router } from "express";
+import {
+  getLeads,
+  createLead,
+  updateLead,
+  deleteLead,
+} from "../controllers/leadController";
 
 const router = Router();
 
-router.get('/', getLeads);
-router.post('/', createLead);
-router.put('/:id', updateLead);
-router.delete('/:id', deleteLead);
+router.get("/", getLeads);
+router.post("/", createLead);
+router.put("/:id", updateLead);
+router.delete("/:id", deleteLead);
 
 export default router;

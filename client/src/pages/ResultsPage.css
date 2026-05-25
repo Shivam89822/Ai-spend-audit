@@ -106,7 +106,8 @@
 .recommendations-section,
 .confidence-section,
 .share-section,
-.cta-section {
+.cta-section,
+.lead-section {
   display: grid;
   gap: 1rem;
 }
@@ -317,9 +318,73 @@
   background: rgba(255, 255, 255, 0.08);
 }
 
+.lead-form {
+  display: grid;
+  gap: 1rem;
+}
+
+.lead-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 1rem;
+}
+
+.lead-field {
+  display: grid;
+  gap: 0.55rem;
+  color: rgba(232, 235, 255, 0.82);
+  font-size: 0.92rem;
+}
+
+.lead-field span {
+  color: rgba(232, 235, 255, 0.68);
+}
+
+.lead-field input {
+  width: 100%;
+  padding: 0.95rem 1rem;
+  border-radius: 16px;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  background: rgba(255, 255, 255, 0.04);
+  color: #eef2ff;
+  outline: none;
+}
+
+.lead-field input:focus {
+  border-color: rgba(114, 156, 255, 0.45);
+  box-shadow: 0 0 0 3px rgba(114, 156, 255, 0.14);
+}
+
+.lead-actions {
+  display: grid;
+  gap: 0.75rem;
+}
+
+.lead-status {
+  margin: 0;
+  font-size: 0.95rem;
+}
+
+.lead-status.success {
+  color: #8ef17b;
+}
+
+.lead-status.error {
+  color: #ff8fa3;
+}
+
+.honeypot-input {
+  position: absolute;
+  opacity: 0;
+  pointer-events: none;
+  width: 1px;
+  height: 1px;
+}
+
 @media (max-width: 930px) {
   .results-metrics-grid,
-  .recommendation-grid {
+  .recommendation-grid,
+  .lead-grid {
     grid-template-columns: 1fr;
   }
 }

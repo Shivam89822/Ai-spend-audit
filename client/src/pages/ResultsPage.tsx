@@ -1,7 +1,13 @@
-import { useEffect, useState } from "react";
+import {
+  useEffect,
+  useState,
+  type ChangeEvent,
+  type FormEvent,
+} from "react";
 import { useLocation, useParams } from "react-router-dom";
 import type { AuditResponse } from "../services/auditApi";
 import {
+  createLeadRequest,
   getAuditByShareIdRequest,
 } from "../services/auditApi";
 import "./ResultsPage.css";
@@ -17,6 +23,17 @@ export default function ResultsPage() {
     !location.state
   );
   const [loadError, setLoadError] = useState<string>("");
+  const [leadForm, setLeadForm] = useState({
+    email: "",
+    companyName: "",
+    role: "",
+    teamSize: "",
+    website: "",
+  });
+  const [leadStatus, setLeadStatus] = useState<string>("");
+  const [leadError, setLeadError] = useState<string>("");
+  const [isSubmittingLead, setIsSubmittingLead] =
+    useState<boolean>(false);
 
   useEffect(() => {
     if (location.state) {
@@ -124,6 +141,54 @@ export default function ResultsPage() {
     } catch {
       setCopySuccess("Copy failed");
       window.setTimeout(() => setCopySuccess(""), 1800);
+    }
+  };
+
+  const handleLeadChange = (
+    event: ChangeEvent<HTMLInputElement>
+  ) => {
+    const { name, value } = event.target;
+
+    setLeadForm((current) => ({
+      ...current,
+      [name]: value,
+    }));
+  };
+
+  const handleLeadSubmit = async (
+    event: FormEvent<HTMLFormElement>
+  ) => {
+    event.preventDefault();
+
+    try {
+      setIsSubmittingLead(true);
+      setLeadError("");
+      setLeadStatus("");
+
+      const response = await createLeadRequest({
+        email: leadForm.email,
+        companyName:
+          leadForm.companyName.trim() || undefined,
+        role: leadForm.role.trim() || undefined,
+        teamSize: leadForm.teamSize
+          ? Number(leadForm.teamSize)
+          : audit.teamSize,
+        shareId,
+        website: leadForm.website,
+      });
+
+      setLeadStatus(
+        response.message ||
+          "Thanks. Your audit has been saved."
+      );
+    } catch (error: any) {
+      console.error(error);
+      setLeadError(
+        error?.response?.data?.message ||
+          "Lead capture failed. Please try again."
+      );
+    } finally {
+      setIsSubmittingLead(false);
     }
   };
 
@@ -348,6 +413,118 @@ export default function ResultsPage() {
               </a>
             </div>
           </div>
+        </div>
+      </section>
+
+      <section className="lead-section">
+        <div className="glass-card">
+          <div className="section-heading">
+            <div>
+              <h2>
+                {isHighSavings
+                  ? "Save this audit and request follow-up"
+                  : isLowSavings
+                    ? "Save this audit and stay informed"
+                    : "Save this audit"}
+              </h2>
+              <p>
+                {isHighSavings
+                  ? "Enter your email to save the audit and make it easier to follow up on the highest-impact savings opportunities."
+                  : isLowSavings
+                    ? "Enter your email to save the report and get notified when pricing or product changes create new optimization opportunities."
+                    : "Enter your email to save the report and revisit the recommendations with your team."}
+              </p>
+            </div>
+          </div>
+
+          <form
+            className="lead-form"
+            onSubmit={handleLeadSubmit}
+          >
+            <input
+              type="text"
+              name="website"
+              value={leadForm.website}
+              onChange={handleLeadChange}
+              className="honeypot-input"
+              tabIndex={-1}
+              autoComplete="off"
+            />
+
+            <div className="lead-grid">
+              <label className="lead-field">
+                <span>Email</span>
+                <input
+                  type="email"
+                  name="email"
+                  value={leadForm.email}
+                  onChange={handleLeadChange}
+                  placeholder="you@company.com"
+                  required
+                />
+              </label>
+
+              <label className="lead-field">
+                <span>Company name</span>
+                <input
+                  type="text"
+                  name="companyName"
+                  value={leadForm.companyName}
+                  onChange={handleLeadChange}
+                  placeholder="Acme"
+                />
+              </label>
+
+              <label className="lead-field">
+                <span>Role</span>
+                <input
+                  type="text"
+                  name="role"
+                  value={leadForm.role}
+                  onChange={handleLeadChange}
+                  placeholder="Founder"
+                />
+              </label>
+
+              <label className="lead-field">
+                <span>Team size</span>
+                <input
+                  type="number"
+                  name="teamSize"
+                  min="1"
+                  value={leadForm.teamSize}
+                  onChange={handleLeadChange}
+                  placeholder={String(audit.teamSize ?? "")}
+                />
+              </label>
+            </div>
+
+            <div className="lead-actions">
+              <button
+                type="submit"
+                className="copy-button"
+                disabled={isSubmittingLead}
+              >
+                {isSubmittingLead
+                  ? "Saving..."
+                  : isHighSavings
+                    ? "Save audit and request follow-up"
+                    : isLowSavings
+                      ? "Save audit and stay updated"
+                      : "Save audit"}
+              </button>
+              {leadStatus && (
+                <p className="lead-status success">
+                  {leadStatus}
+                </p>
+              )}
+              {leadError && (
+                <p className="lead-status error">
+                  {leadError}
+                </p>
+              )}
+            </div>
+          </form>
         </div>
       </section>
     </div>

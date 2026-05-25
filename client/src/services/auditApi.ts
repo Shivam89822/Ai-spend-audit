@@ -5,6 +5,7 @@ const API_BASE_URL =
 
 export interface AuditResponse {
   shareId: string;
+  teamSize?: number;
   primaryUseCase: string;
   aiSummary: string;
   recommendations: Array<{
@@ -41,6 +42,24 @@ export const getAuditByShareIdRequest = async (
 ) => {
   const response = await axios.get(
     `${API_BASE_URL}/audit/${shareId}`
+  );
+
+  return response.data;
+};
+
+export const createLeadRequest = async (
+  payload: {
+    email: string;
+    companyName?: string;
+    role?: string;
+    teamSize?: number;
+    shareId: string;
+    website?: string;
+  }
+) => {
+  const response = await axios.post(
+    `${API_BASE_URL}/leads`,
+    payload
   );
 
   return response.data;
