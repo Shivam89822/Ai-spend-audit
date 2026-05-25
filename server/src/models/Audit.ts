@@ -1,7 +1,7 @@
 import mongoose, { Schema, Document } from "mongoose";
 
 import {
-  IToolInput,
+  IResolvedToolInput,
   IRecommendation,
   IAuditTotals,
   UseCase,
@@ -14,7 +14,7 @@ export interface IAudit extends Document {
 
   primaryUseCase: UseCase;
 
-  tools: IToolInput[];
+  tools: IResolvedToolInput[];
 
   recommendations: IRecommendation[];
 
@@ -31,7 +31,7 @@ export interface IAudit extends Document {
   updatedAt: Date;
 }
 
-const ToolInputSchema = new Schema<IToolInput>(
+const ToolInputSchema = new Schema<IResolvedToolInput>(
   {
     toolName: {
       type: String,

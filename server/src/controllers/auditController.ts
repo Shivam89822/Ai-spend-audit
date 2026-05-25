@@ -4,6 +4,7 @@ import Audit from "../models/Audit";
 
 import { runAudit } from "../services/audit/auditEngine";
 import { generateAISummary } from "../services/ai/generateSummary";
+import { resolveAuditPricing } from "../services/audit/pricing/resolveAuditPricing";
 
 import { generateShareId } from "../utils/generateShareId";
 
@@ -24,12 +25,17 @@ export const runAuditController = async (
       });
     }
 
-    const auditResult = runAudit(req.body);
+    const resolvedInput = {
+      ...req.body,
+      tools: resolveAuditPricing(req.body.tools),
+    };
+
+    const auditResult = runAudit(resolvedInput);
 
     const shareId = generateShareId();
 
     const aiSummary = await generateAISummary(
-      req.body,
+      resolvedInput,
       auditResult
     );
 
@@ -41,7 +47,7 @@ export const runAuditController = async (
       primaryUseCase:
         req.body.primaryUseCase,
 
-      tools: req.body.tools,
+      tools: resolvedInput.tools,
 
       recommendations:
         auditResult.recommendations,

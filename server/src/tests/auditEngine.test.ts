@@ -2,26 +2,25 @@ import { describe, expect, it } from "vitest";
 
 import { runAudit } from "../services/audit/auditEngine";
 import { buildFallbackSummary } from "../services/ai/generateSummary";
+import { resolveAuditPricing } from "../services/audit/pricing/resolveAuditPricing";
 
 describe("AuditEngine", () => {
   it("calculates totals and recommendations", () => {
     const result = runAudit({
       teamSize: 10,
       primaryUseCase: "coding",
-      tools: [
+      tools: resolveAuditPricing([
         {
           toolName: "Cursor",
           currentPlan: "Pro",
-          monthlySpend: 200,
           seats: 10,
         },
         {
           toolName: "ChatGPT",
           currentPlan: "Business",
-          monthlySpend: 200,
           seats: 8,
         },
-      ],
+      ]),
     });
 
     expect(result.totalMonthlySpend).toBe(400);
@@ -33,14 +32,13 @@ describe("AuditEngine", () => {
     const input = {
       teamSize: 5,
       primaryUseCase: "research" as const,
-      tools: [
+      tools: resolveAuditPricing([
         {
           toolName: "Gemini" as const,
           currentPlan: "Gemini Advanced",
-          monthlySpend: 100,
           seats: 5,
         },
-      ],
+      ]),
     };
 
     const result = runAudit(input);

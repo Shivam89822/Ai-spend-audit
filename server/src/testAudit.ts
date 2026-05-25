@@ -1,17 +1,16 @@
 import { runAudit } from "./services/audit/auditEngine";
+import { resolveAuditPricing } from "./services/audit/pricing/resolveAuditPricing";
 
 const auditResult = runAudit({
   teamSize: 2,
 
   primaryUseCase: "coding",
 
-  tools: [
+  tools: resolveAuditPricing([
     {
       toolName: "Cursor",
 
       currentPlan: "Teams",
-
-      monthlySpend: 80,
 
       seats: 2,
     },
@@ -21,11 +20,9 @@ const auditResult = runAudit({
 
       currentPlan: "Business",
 
-      monthlySpend: 60,
-
       seats: 2,
     },
-  ],
+  ]),
 });
 
 console.log(JSON.stringify(auditResult, null, 2));

@@ -1,6 +1,6 @@
 import {
   IRecommendation,
-  IToolInput,
+  IResolvedToolInput,
   UseCase,
 } from "../../types/audit.types";
 
@@ -134,7 +134,7 @@ const generateReason = (
 const buildSameToolCandidates = (
   pricing: IToolPricingData,
   currentPlan: IToolPlan,
-  tool: IToolInput,
+  tool: IResolvedToolInput,
   teamSize: number,
   primaryUseCase: UseCase
 ) => {
@@ -251,7 +251,7 @@ const buildAlternativeToolCandidates = (
 };
 
 export const generateRecommendation = (
-  tool: IToolInput,
+  tool: IResolvedToolInput,
   teamSize: number,
   primaryUseCase: UseCase
 ): IRecommendation => {

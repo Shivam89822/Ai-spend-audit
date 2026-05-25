@@ -1,6 +1,6 @@
 import {
   IRecommendation,
-  IToolInput,
+  IResolvedToolInput,
   UseCase,
 } from "../../types/audit.types";
 
@@ -11,7 +11,7 @@ export interface IAuditInput {
 
   primaryUseCase: UseCase;
 
-  tools: IToolInput[];
+  tools: IResolvedToolInput[];
 }
 
 export interface IAuditResult {

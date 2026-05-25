@@ -26,7 +26,6 @@ interface SelectedTool {
   id: string;
   name: string;
   plan: string;
-  spend: number;
   seats: number;
 }
 
@@ -43,8 +42,8 @@ export const AuditPage: React.FC = () => {
   const [useCase, setUseCase] = useState<UseCase>('mixed');
   const [teamSize, setTeamSize] = useState<number>(10);
   const [tools, setTools] = useState<SelectedTool[]>([
-    { id: '1', name: 'Cursor', plan: 'Pro', spend: 20, seats: 10 },
-    { id: '2', name: 'ChatGPT', plan: 'Business', spend: 25, seats: 8 }
+    { id: '1', name: 'Cursor', plan: 'Pro', seats: 10 },
+    { id: '2', name: 'ChatGPT', plan: 'Business', seats: 8 }
   ]);
 
   const navigate = useNavigate();
@@ -56,7 +55,6 @@ export const AuditPage: React.FC = () => {
       id: crypto.randomUUID(),
       name: defaultTool.name,
       plan: defaultTool.plans[0],
-      spend: defaultTool.defaultPrice,
       seats: teamSize
     };
     setTools([...tools, newTool]);
@@ -71,13 +69,12 @@ export const AuditPage: React.FC = () => {
       if (t.id !== id) return t;
       const updated = { ...t, [key]: value };
       
-      if (key === 'name') {
-        const template = SUPPORTED_TOOLS.find(st => st.name === value);
-        if (template) {
-          updated.plan = template.plans[0];
-          updated.spend = template.defaultPrice;
+        if (key === 'name') {
+          const template = SUPPORTED_TOOLS.find(st => st.name === value);
+          if (template) {
+            updated.plan = template.plans[0];
+          }
         }
-      }
       return updated;
     }));
   };
@@ -95,8 +92,6 @@ export const AuditPage: React.FC = () => {
         toolName: tool.name,
 
         currentPlan: tool.plan,
-
-        monthlySpend: tool.spend * tool.seats,
 
         seats: tool.seats,
       })),
@@ -255,14 +250,14 @@ export const AuditPage: React.FC = () => {
               <div className="telemetry-metric-card">
                 <div className="card-ambient-glow burn-rate"></div>
                 <div className="metric-header-row">
-                  <span className="metric-label-meta">Configured Monthly Burn</span>
+                  <span className="metric-label-meta">Configured Seats</span>
                   <DollarSign size={16} className="metric-vector-icon color-burn" />
                 </div>
                 <div className="metric-numerical-display">
-                  ${tools.reduce((acc, t) => acc + t.spend * t.seats, 0).toLocaleString()}
+                  {tools.reduce((acc, t) => acc + t.seats, 0).toLocaleString()}
                 </div>
                 <div className="metric-trend-footer">
-                  Based on {tools.reduce((acc, t) => acc + t.seats, 0)} seats across {tools.length} tools
+                  Total configured seats across {tools.length} tools
                 </div>
               </div>
 
@@ -287,7 +282,7 @@ export const AuditPage: React.FC = () => {
                   <AlertTriangle size={16} className="metric-vector-icon color-bleed" />
                 </div>
                 <div className="metric-numerical-display color-critical">
-                  Backend validates actual plan names and spend
+                  Backend validates actual plan names and resolves pricing
                 </div>
                 <div className="metric-trend-footer text-muted">
                   No frontend savings simulation is performed
@@ -370,19 +365,6 @@ export const AuditPage: React.FC = () => {
                     </div>
 
                     <div className="input-group-wrapper">
-                      <label className="input-field-label">Cost / Seat / Mo</label>
-                      <div className="input-prefix-container">
-                        <span className="input-inner-prefix">$</span>
-                        <input 
-                          type="number" 
-                          value={tool.spend} 
-                          onChange={(e) => updateTool(tool.id, 'spend', Math.max(0, Number(e.target.value)))}
-                          className="futuristic-input prefix-padding"
-                        />
-                      </div>
-                    </div>
-
-                    <div className="input-group-wrapper">
                       <label className="input-field-label">Allocated Seats</label>
                       <input 
                         type="number" 
@@ -431,7 +413,7 @@ export const AuditPage: React.FC = () => {
             )}
           </button>
           <p className="compliance-fine-print">
-            By executing synthesis, cloud spend assets are indexed locally against 4,200+ micro-tier SaaS pricing endpoints.
+            By executing synthesis, current tools and seat counts are matched against backend pricing data for the audit.
           </p>
         </div>
 

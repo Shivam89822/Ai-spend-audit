@@ -29,8 +29,12 @@ export type RecommendationConfidence =
 export interface IToolInput {
   toolName: ToolName;
   currentPlan: string;
-  monthlySpend: number;
   seats: number;
+}
+
+export interface IResolvedToolInput
+  extends IToolInput {
+  monthlySpend: number;
 }
 
 export interface IRecommendation {
