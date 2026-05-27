@@ -11,7 +11,8 @@ import {
   getAuditByShareIdRequest,
 } from "../services/auditApi";
 import "./ResultsPage.css";
-
+import jsPDF from "jspdf";
+import html2canvas from "html2canvas";
 export default function ResultsPage() {
   const location = useLocation();
   const { shareId: shareIdParam } = useParams();
@@ -144,6 +145,36 @@ export default function ResultsPage() {
     }
   };
 
+  const generatePDF = async () => {
+  const input = document.getElementById("report-content");
+
+  if (!input) return;
+
+  const canvas = await html2canvas(input, {
+    scale: 2,
+  });
+
+  const imgData = canvas.toDataURL("image/png");
+
+  const pdf = new jsPDF("p", "mm", "a4");
+
+  const pdfWidth = pdf.internal.pageSize.getWidth();
+
+  const pdfHeight =
+    (canvas.height * pdfWidth) / canvas.width;
+
+  pdf.addImage(
+    imgData,
+    "PNG",
+    0,
+    0,
+    pdfWidth,
+    pdfHeight
+  );
+
+  pdf.save(`audit-${shareId}.pdf`);
+};
+
   const handleLeadChange = (
     event: ChangeEvent<HTMLInputElement>
   ) => {
@@ -252,6 +283,7 @@ export default function ResultsPage() {
       </div>
 
       <section className="recommendations-section">
+         <div id="report-content">
         <div className="section-heading">
           <div>
             <h2>Recommendation dashboard</h2>
@@ -309,7 +341,8 @@ export default function ResultsPage() {
               </div>
             </article>
           ))}
-        </div>
+        </div></div>
+        
       </section>
 
       <section className="confidence-section">
@@ -368,165 +401,91 @@ export default function ResultsPage() {
           <p style={{ marginTop: 20, lineHeight: 1.7 }}>{aiSummary}</p>
         </div>
       </section>
-
-      <section className="cta-section">
-        <div
-          id="lead-capture"
-          className={`glass-card action-card ${
-            isHighSavings
-              ? "action-high"
-              : isLowSavings
-                ? "action-low"
-                : "action-mid"
-          }`}
-        >
-          <div className="section-heading">
-            <div>
-              <h2>{actionTitle}</h2>
-              <p>{actionBody}</p>
-            </div>
-          </div>
-          <div className="action-card-footer">
-            <div className="action-pill-row">
-              <span className="action-pill">
-                Monthly savings: $
-                {totalMonthlySavings.toLocaleString()}
-              </span>
-              <span className="action-pill">
-                Annual impact: $
-                {totalAnnualSavings.toLocaleString()}
-              </span>
-            </div>
-            <div className="action-buttons">
-              <button className="copy-button" onClick={copyShareId}>
-                {copySuccess || "Copy Share ID"}
-              </button>
-              <a
-                className="secondary-action-link"
-                href={isHighSavings ? "#lead-capture" : "#summary"}
-              >
-                {isHighSavings
-                  ? "Request follow-up"
-                  : isLowSavings
-                    ? "Save and monitor"
-                    : "Review recommendations"}
-              </a>
-            </div>
-          </div>
-        </div>
-      </section>
-
       <section className="lead-section">
-        <div className="glass-card">
-          <div className="section-heading">
-            <div>
-              <h2>
-                {isHighSavings
-                  ? "Save this audit and request follow-up"
-                  : isLowSavings
-                    ? "Save this audit and stay informed"
-                    : "Save this audit"}
-              </h2>
-              <p>
-                {isHighSavings
-                  ? "Enter your email to save the audit and make it easier to follow up on the highest-impact savings opportunities."
-                  : isLowSavings
-                    ? "Enter your email to save the report and get notified when pricing or product changes create new optimization opportunities."
-                    : "Enter your email to save the report and revisit the recommendations with your team."}
-              </p>
-            </div>
-          </div>
+  <div className="lead-card">
 
-          <form
-            className="lead-form"
-            onSubmit={handleLeadSubmit}
-          >
-            <input
-              type="text"
-              name="website"
-              value={leadForm.website}
-              onChange={handleLeadChange}
-              className="honeypot-input"
-              tabIndex={-1}
-              autoComplete="off"
-            />
+    <div className="lead-content">
+      <span className="lead-badge">Audit Report Ready</span>
 
-            <div className="lead-grid">
-              <label className="lead-field">
-                <span>Email</span>
-                <input
-                  type="email"
-                  name="email"
-                  value={leadForm.email}
-                  onChange={handleLeadChange}
-                  placeholder="you@company.com"
-                  required
-                />
-              </label>
+      <h2>Get Your Full Report via Email</h2>
 
-              <label className="lead-field">
-                <span>Company name</span>
-                <input
-                  type="text"
-                  name="companyName"
-                  value={leadForm.companyName}
-                  onChange={handleLeadChange}
-                  placeholder="Acme"
-                />
-              </label>
+      <p>
+        We’ll send your personalized AI spend optimization report directly
+        to your inbox along with future saving opportunities.
+      </p>
+    </div>
 
-              <label className="lead-field">
-                <span>Role</span>
-                <input
-                  type="text"
-                  name="role"
-                  value={leadForm.role}
-                  onChange={handleLeadChange}
-                  placeholder="Founder"
-                />
-              </label>
+    <form className="lead-form">
 
-              <label className="lead-field">
-                <span>Team size</span>
-                <input
-                  type="number"
-                  name="teamSize"
-                  min="1"
-                  value={leadForm.teamSize}
-                  onChange={handleLeadChange}
-                  placeholder={String(audit.teamSize ?? "")}
-                />
-              </label>
-            </div>
+      <div className="input-group">
+        <label>Email Address</label>
 
-            <div className="lead-actions">
-              <button
-                type="submit"
-                className="copy-button"
-                disabled={isSubmittingLead}
-              >
-                {isSubmittingLead
-                  ? "Saving..."
-                  : isHighSavings
-                    ? "Save audit and request follow-up"
-                    : isLowSavings
-                      ? "Save audit and stay updated"
-                      : "Save audit"}
-              </button>
-              {leadStatus && (
-                <p className="lead-status success">
-                  {leadStatus}
-                </p>
-              )}
-              {leadError && (
-                <p className="lead-status error">
-                  {leadError}
-                </p>
-              )}
-            </div>
-          </form>
-        </div>
-      </section>
+        <input
+          type="email"
+          name="email"
+          placeholder="founder@startup.com"
+          required
+        />
+      </div>
+
+      <div className="input-group">
+        <label>Company Name</label>
+
+        <input
+          type="text"
+          name="companyName"
+          placeholder="Acme Inc."
+        />
+      </div>
+
+      <div className="input-group">
+        <label>Your Role</label>
+
+        <input
+          type="text"
+          name="role"
+          placeholder="Founder / CTO / Engineer"
+        />
+      </div>
+
+      <div className="input-group">
+        <label>Team Size</label>
+
+        <input
+          type="number"
+          name="teamSize"
+          placeholder="12"
+          min="1"
+        />
+      </div>
+
+      <input
+        type="hidden"
+        name="auditId"
+    
+      />
+
+      <button type="submit">
+        Send Audit Report
+      </button>
+
+    </form>
+
+    <div className="privacy-text">
+      <p>
+        Secure submission • No spam • Your report is linked to this audit
+      </p>
+    </div>
+
+  </div>
+</section>
+<button
+  type="button"
+  onClick={generatePDF}
+  className="download-pdf-btn"
+>
+  Download PDF Report
+</button>
     </div>
   );
 }
