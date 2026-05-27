@@ -313,7 +313,7 @@ function Nav() {
           <a href="#impact">Docs</a>
         </div>
         <div className="nav-actions">
-          <button className="btn-ghost">Sign in</button>
+          {/* <button className="btn-ghost">Sign in</button> */}
           <button className="btn-primary btn-sm" onClick={()=>{navigate("/audit")}}>Start Free Audit</button>
         </div>
       </div>
@@ -323,6 +323,7 @@ function Nav() {
 
 // ─── Hero ─────────────────────────────────────────────────────────────────────
 function Hero() {
+  const navigate = useNavigate();
   return (
     <section className="hero">
       <ParticleField />
@@ -353,7 +354,7 @@ function Hero() {
           </p>
 
           <div className="hero-ctas">
-            <button className="btn-primary btn-glow">
+            <button className="btn-primary btn-glow" onClick={()=>{navigate("/audit")}}>
               <span>Start Free Audit</span>
               <span className="btn-arrow">→</span>
             </button>
@@ -578,6 +579,7 @@ function ImpactSection() {
 
 // ─── Final CTA ────────────────────────────────────────────────────────────────
 function FinalCTA() {
+  const navigate = useNavigate();
   return (
     <section className="final-cta">
       <div className="cta-blob-1" />
@@ -595,7 +597,7 @@ function FinalCTA() {
             recoup our annual cost in the first 30 days.
           </p>
           <div className="cta-buttons">
-            <button className="btn-primary btn-xl btn-glow">
+            <button className="btn-primary btn-xl btn-glow" onClick={()=>{navigate("/audit")}}>
               Start Free Audit →
             </button>
             <button className="btn-ghost-lg">Talk to sales</button>
