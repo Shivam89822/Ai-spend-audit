@@ -35,6 +35,8 @@ export const createLead = async (
   res: Response
 ) => {
   try {
+    console.log("\n--- [LeadController] Incoming Lead Submission ---");
+    console.log("Payload received:", req.body);
     const {
       email,
       companyName,
@@ -45,6 +47,7 @@ export const createLead = async (
     } = req.body;
 
     if (website) {
+      console.log("⚠️ Honeypot triggered (website field is not empty). Skipping DB save.");
       return res.status(202).json({
         success: true,
         message: "Lead received.",
@@ -52,6 +55,7 @@ export const createLead = async (
     }
 
     if (!email || !emailRegex.test(email)) {
+      console.error("❌ Validation failed: Invalid email.");
       return res.status(400).json({
         success: false,
         message: "A valid email is required.",
@@ -59,21 +63,25 @@ export const createLead = async (
     }
 
     if (!shareId) {
+      console.error("❌ Validation failed: shareId is missing.");
       return res.status(400).json({
         success: false,
         message: "Audit share ID is required.",
       });
     }
 
+    console.log(`🔍 Looking for Audit with shareId: ${shareId}`);
     const audit = await Audit.findOne({ shareId });
 
     if (!audit) {
+      console.error(`❌ Audit not found for shareId: ${shareId}`);
       return res.status(404).json({
         success: false,
         message: "Audit not found.",
       });
     }
 
+    console.log(`✅ Audit found: ${audit._id}. Checking for existing lead...`);
     const normalizedEmail = String(email)
       .trim()
       .toLowerCase();
@@ -82,6 +90,8 @@ export const createLead = async (
       email: normalizedEmail,
       auditId: audit._id,
     });
+
+    if (existingLead) console.log("⚠️ Lead already exists for this audit and email.");
 
     const lead =
       existingLead ||
@@ -97,20 +107,26 @@ export const createLead = async (
         auditId: audit._id,
       }));
 
+    if (!existingLead) console.log("✅ New Lead successfully saved to MongoDB:", lead);
+
     audit.leadCaptured = true;
     audit.status =
       audit.totals.totalMonthlySavings > 500
         ? "high_savings"
         : "emailed";
 
+    console.log("💾 Updating audit status to reflect lead capture...");
     await audit.save();
 
     try {
+      console.log(`📧 Attempting to send audit email to ${normalizedEmail}...`);
       await sendAuditEmail(normalizedEmail, audit);
+      console.log("✅ Email sent successfully.");
     } catch (error) {
       console.error("Lead email send failed", error);
     }
 
+    console.log("🚀 Responding to client with success.");
     return res.status(existingLead ? 200 : 201).json({
       success: true,
       message:
@@ -124,6 +140,7 @@ export const createLead = async (
       },
     });
   } catch (error) {
+    console.error("❌ Fatal error in createLead controller:");
     console.error(error);
 
     return res.status(500).json({

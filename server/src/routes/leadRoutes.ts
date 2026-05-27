@@ -1,15 +1,11 @@
 import { Router } from "express";
-import {
-  getLeads,
-  createLead,
-  updateLead,
-  deleteLead,
-} from "../controllers/leadController";
+import { createLead, getLeads, updateLead, deleteLead } from "../controllers/leadController";
 
 const router = Router();
 
-router.get("/", getLeads);
+// POST /api/leads - Adds a new lead to the database (uses createLead from leadController)
 router.post("/", createLead);
+router.get("/", getLeads);
 router.put("/:id", updateLead);
 router.delete("/:id", deleteLead);
 

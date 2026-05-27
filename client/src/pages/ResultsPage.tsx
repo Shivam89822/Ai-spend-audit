@@ -196,7 +196,7 @@ export default function ResultsPage() {
       setLeadError("");
       setLeadStatus("");
 
-      const response = await createLeadRequest({
+      const leadPayload = {
         email: leadForm.email,
         companyName:
           leadForm.companyName.trim() || undefined,
@@ -206,7 +206,13 @@ export default function ResultsPage() {
           : audit.teamSize,
         shareId,
         website: leadForm.website,
-      });
+      };
+
+      console.log("🚀 [Frontend] Sending lead payload to API:", leadPayload);
+
+      const response = await createLeadRequest(leadPayload);
+      
+      console.log("✅ [Frontend] API Response received:", response);
 
       setLeadStatus(
         response.message ||
@@ -405,77 +411,87 @@ export default function ResultsPage() {
   <div className="lead-card">
 
     <div className="lead-content">
-      <span className="lead-badge">Audit Report Ready</span>
+      <span className="lead-badge">Generate Lead</span>
 
-      <h2>Get Your Full Report via Email</h2>
+      <h2>Record your lead for future suggestion</h2>
 
       <p>
-        We’ll send your personalized AI spend optimization report directly
-        to your inbox along with future saving opportunities.
+        this will help us to work with you in future
       </p>
     </div>
 
-    <form className="lead-form">
-
-      <div className="input-group">
-        <label>Email Address</label>
-
-        <input
-          type="email"
-          name="email"
-          placeholder="founder@startup.com"
-          required
-        />
+    {leadStatus ? (
+      <div className="lead-success-message" style={{ textAlign: "center", padding: "2rem 0" }}>
+        <h3 style={{ color: "#10b981", marginBottom: "0.5rem" }}>🎉 {leadStatus}</h3>
+        <p style={{ color: "rgba(255, 255, 255, 0.7)" }}>We've successfully recorded your details linked to this audit.</p>
       </div>
+    ) : (
+      <>
+        <form className="lead-form" onSubmit={handleLeadSubmit}>
+          {leadError && (
+            <div className="lead-error" style={{ color: "#ef4444", marginBottom: "1rem", fontSize: "0.9rem", textAlign: "center" }}>
+              {leadError}
+            </div>
+          )}
 
-      <div className="input-group">
-        <label>Company Name</label>
+          <div className="input-group">
+            <label>Email Address</label>
+            <input
+              type="email"
+              name="email"
+              placeholder="founder@startup.com"
+              value={leadForm.email}
+              onChange={handleLeadChange}
+              required
+            />
+          </div>
 
-        <input
-          type="text"
-          name="companyName"
-          placeholder="Acme Inc."
-        />
-      </div>
+          <div className="input-group">
+            <label>Company Name</label>
+            <input
+              type="text"
+              name="companyName"
+              placeholder="Acme Inc."
+              value={leadForm.companyName}
+              onChange={handleLeadChange}
+            />
+          </div>
 
-      <div className="input-group">
-        <label>Your Role</label>
+          <div className="input-group">
+            <label>Your Role</label>
+            <input
+              type="text"
+              name="role"
+              placeholder="Founder / CTO / Engineer"
+              value={leadForm.role}
+              onChange={handleLeadChange}
+            />
+          </div>
 
-        <input
-          type="text"
-          name="role"
-          placeholder="Founder / CTO / Engineer"
-        />
-      </div>
+          <div className="input-group">
+            <label>Team Size</label>
+            <input
+              type="number"
+              name="teamSize"
+              placeholder="12"
+              min="1"
+              value={leadForm.teamSize}
+              onChange={handleLeadChange}
+            />
+          </div>
 
-      <div className="input-group">
-        <label>Team Size</label>
+          <button type="submit" disabled={isSubmittingLead}>
+            {isSubmittingLead ? "Recording..." : "Record Lead"}
+          </button>
+        </form>
 
-        <input
-          type="number"
-          name="teamSize"
-          placeholder="12"
-          min="1"
-        />
-      </div>
-
-      <input
-        type="hidden"
-        name="auditId"
-    
-      />
-
-      <button type="submit">
-        Send Audit Report
-      </button>
-
-    </form>
-
-    <div className="privacy-text">
-      <p>
-        Secure submission • No spam • Your report is linked to this audit
-      </p>
-    </div>
+        <div className="privacy-text">
+          <p>
+            Secure submission • No spam • Your report is linked to this audit
+          </p>
+        </div>
+      </>
+    )}
 
   </div>
 </section>

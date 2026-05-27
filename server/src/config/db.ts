@@ -3,13 +3,13 @@ import { env, getRequiredEnv } from "./env";
 
 const connectDB = async (): Promise<void> => {
   try {
-    await mongoose.connect(
+    const conn = await mongoose.connect(
       env.mongoUri || getRequiredEnv("MONGO_URI")
     );
 
-    console.log("MongoDB connected");
+    console.log(`✅ MongoDB connected successfully to: ${conn.connection.host}`);
   } catch (error) {
-    console.error("Database connection failed");
+    console.error("❌ Database connection failed:", error);
 
     process.exit(1);
   }
